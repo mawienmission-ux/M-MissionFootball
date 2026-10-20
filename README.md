@@ -14,6 +14,7 @@ A beginner-friendly, responsive MVP for the South Sudan Premier League and local
 ## Included in this starter
 - Responsive public football homepage.
 - Installable progressive web app: on iPhone, open the site in Safari, tap **Share → Add to Home Screen**; on Android, open it in Chrome and choose **Install app** or **Add to Home screen** from the browser menu. This creates a home-screen app shortcut, not an App Store or Google Play listing.
+- Native iOS and Android project scaffolding is provided through Capacitor in `mobile-projects.zip`. Extract that archive into the project folder so `android/` and `ios/` sit beside `package.json`. Then run `npm install` and `npm run mobile:sync`, followed by `npm run mobile:android` or `npm run mobile:ios` to open a native project. Android builds require Android Studio, Android SDK, and JDK 17 or newer. iOS builds and App Store uploads require macOS with Xcode.
 - Original football and pitch illustration in the homepage hero banner.
 - SSPL 2026–2027 season branding.
 - 14 editable club slots.
@@ -54,4 +55,12 @@ The logo is stored in this browser's localStorage for the prototype; it is not s
 2. Add secure authentication and Super Admin / League Admin / Club Admin / Editor / Fan permissions on the backend.
 3. Add verified club data and individual logos.
 4. Add real-time updates and push notifications.
-5. Deploy the web app and package the mobile experience.
+5. Complete native store builds, signing, store disclosures, testing, and review.
+
+## App Store and Google Play release
+The Capacitor folders are starter projects, not submitted or store-approved apps. After completing the production steps above:
+
+- **Google Play:** Open `android/` in Android Studio, configure the release signing key, build a signed Android App Bundle (`.aab`), then upload it in the Google Play Console and complete the store listing and testing requirements.
+- **Apple App Store:** On a Mac, open `ios/App/App.xcworkspace` in Xcode, select your Apple Developer team, configure signing and the bundle identifier, archive the app, then upload it to App Store Connect and complete TestFlight review and the store listing.
+
+Both stores require app privacy disclosures, a support contact, screenshots, and store review. The current demo login is hard-coded and app data is saved only in each device's browser storage; replace these with secure server-side authentication and shared backend storage before a public release. Never publish the demo password shown above.

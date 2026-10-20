@@ -1,0 +1,11 @@
+{
+  "appId": "com.mawienmission.mmissionfootball",
+  "appName": "M.MissionFootball",
+  "webDir": "public",
+  "server": {
+    "androidScheme": "https"
+  },
+  "ios": {
+    "contentInset": "automatic"
+  }
+}

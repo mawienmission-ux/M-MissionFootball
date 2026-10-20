@@ -4,9 +4,18 @@
   "private": true,
   "description": "M.MissionFootball - The Home of South Sudan Football",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "mobile:sync": "cap sync",
+    "mobile:android": "cap open android",
+    "mobile:ios": "cap open ios"
   },
   "dependencies": {
+    "@capacitor/android": "^8.5.3",
+    "@capacitor/core": "^8.5.3",
     "express": "^4.21.2"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^8.5.3",
+    "@capacitor/ios": "^8.5.3"
   }
 }
