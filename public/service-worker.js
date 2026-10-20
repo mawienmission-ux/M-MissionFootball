@@ -1,9 +1,10 @@
-const CACHE_NAME = "mmf-shell-v1";
+const CACHE_NAME = "mmf-shell-v2";
 const SHELL_FILES = [
   "/",
   "/index.html",
   "/styles.css",
   "/app.js",
+  "/backend-config.js",
   "/manifest.webmanifest",
   "/assets/icons/app-icon-192.png",
   "/assets/icons/app-icon-512.png",
@@ -28,7 +29,7 @@ self.addEventListener("activate", event => {
 self.addEventListener("fetch", event => {
   const request = event.request;
   const url = new URL(request.url);
-  if (request.method !== "GET" || url.origin !== self.location.origin || url.pathname.startsWith("/api/")) return;
+  if (request.method !== "GET" || url.origin !== self.location.origin || url.pathname.startsWith("/api/") || url.pathname === "/backend-config.js") return;
 
   if (request.mode === "navigate") {
     event.respondWith(

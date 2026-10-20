@@ -1,4 +1,5 @@
 const KEY = "mmf_v1_data";
+const AUTH_KEY = "mmf_supabase_session";
 const defaultLeagues = [
   "South Sudan Premier League",
   "Juba Local Football Association (Konyokonyo League) First Division",
@@ -41,10 +42,76 @@ const seed = {
     {id:3,title:"Local football matters",category:"Community Football",summary:"Follow football associations in Juba, Yei, Yambio, Rumbek, Aweil and Wau.",date:new Date().toISOString()}
   ]
 };
-function loadData(){try{const d=JSON.parse(localStorage.getItem(KEY));if(d&&Array.isArray(d.clubs)&&Array.isArray(d.matches)&&Array.isArray(d.news)){const leagues=Array.isArray(d.leagues)?d.leagues.slice():[];if(d.leagueCatalogVersion!==2)defaultLeagues.forEach(league=>{if(!leagues.includes(league))leagues.push(league);});return{...d,players:Array.isArray(d.players)?d.players:[],leagues,leagueCatalogVersion:2,leagueLogos:d.leagueLogos&&typeof d.leagueLogos==="object"?d.leagueLogos:{},followedClubIds:Array.isArray(d.followedClubIds)?d.followedClubIds.map(Number).filter(Number.isFinite):[],initialStandings:Array.isArray(d.initialStandings)?d.initialStandings.filter(entry=>entry&&typeof entry==="object"):[]};}}catch(e){}return structuredClone(seed);}
+function normalizeData(d){if(!d||!Array.isArray(d.clubs)||!Array.isArray(d.matches)||!Array.isArray(d.news))return null;const leagues=Array.isArray(d.leagues)?d.leagues.slice():[];if(d.leagueCatalogVersion!==2)defaultLeagues.forEach(league=>{if(!leagues.includes(league))leagues.push(league);});return{...structuredClone(seed),...d,players:Array.isArray(d.players)?d.players:[],leagues,leagueCatalogVersion:2,leagueLogos:d.leagueLogos&&typeof d.leagueLogos==="object"?d.leagueLogos:{},followedClubIds:Array.isArray(d.followedClubIds)?d.followedClubIds.map(Number).filter(Number.isFinite):[],initialStandings:Array.isArray(d.initialStandings)?d.initialStandings.filter(entry=>entry&&typeof entry==="object"):[]};}
+function loadData(){try{return normalizeData(JSON.parse(localStorage.getItem(KEY)))||structuredClone(seed);}catch(e){return structuredClone(seed);}}
 let data=loadData();
+const supabaseUrl=String(window.MMF_SUPABASE_URL||"").replace(/\/+$/,"");
+const supabaseAnonKey=String(window.MMF_SUPABASE_ANON_KEY||"");
+let sharedSyncActive=false;
+let sharedSyncTimer=0;
+function getAdminSession(){try{return JSON.parse(sessionStorage.getItem(AUTH_KEY)||"null");}catch{return null;}}
+function setAdminSession(session){sessionStorage.setItem(AUTH_KEY,JSON.stringify(session));}
+function clearAdminSession(){sessionStorage.removeItem(AUTH_KEY);}
+function backendConfigured(){return Boolean(supabaseUrl&&supabaseAnonKey&&!supabaseUrl.includes("YOUR-PROJECT")&&!supabaseAnonKey.includes("YOUR-ANON-KEY"));}
+async function supabaseRequest(path,{method="GET",body,authenticated=false,prefer=""}={},retry=true){
+ if(!backendConfigured())throw new Error("Supabase is not configured. Add the project URL and anon key in public/backend-config.js.");
+ const session=getAdminSession();
+ const headers={apikey:supabaseAnonKey,Authorization:"Bearer "+(authenticated&&session?.access_token?session.access_token:supabaseAnonKey)};
+ if(body!==undefined)headers["Content-Type"]="application/json";
+ if(prefer)headers.Prefer=prefer;
+ let response=await fetch(`${supabaseUrl}${path}`,{method,headers,body:body===undefined?undefined:JSON.stringify(body)});
+ if(response.status===401&&retry&&authenticated&&session?.refresh_token){
+  const refreshed=await fetch(`${supabaseUrl}/auth/v1/token?grant_type=refresh_token`,{method:"POST",headers:{apikey:supabaseAnonKey,"Content-Type":"application/json"},body:JSON.stringify({refresh_token:session.refresh_token})});
+  const refreshedBody=await refreshed.json().catch(()=>null);
+  if(!refreshed.ok)throw new Error(refreshedBody?.msg||refreshedBody?.message||"Admin session expired. Sign in again.");
+  setAdminSession(refreshedBody);
+  return supabaseRequest(path,{method,body,authenticated,prefer},false);
+ }
+ const result=await response.json().catch(()=>null);
+ if(!response.ok)throw new Error(result?.message||result?.msg||`Supabase request failed (${response.status}).`);
+ return result;
+}
+async function loadSharedData(){
+ if(!backendConfigured()||sharedSyncActive||sharedSyncTimer)return null;
+ try{
+  const rows=await supabaseRequest("/rest/v1/app_state?select=state&id=eq.1");
+  if(!Array.isArray(rows)||!rows.length)return false;
+  const shared=normalizeData(rows[0].state);
+  if(!shared)throw new Error("The shared app data is invalid. Check the Supabase app_state row.");
+  shared.followedClubIds=loadData().followedClubIds;
+  data=shared;
+  localStorage.setItem(KEY,JSON.stringify(data));
+  renderAll();
+  return true;
+ }catch(error){
+  console.error("Could not load shared M.MissionFootball data.",error);
+  const message=document.getElementById("adminMessage");
+  if(message&&backendConfigured())message.textContent=`Could not load shared data: ${error.message}`;
+  return null;
+ }
+}
+function scheduleSharedSave(){
+ if(!backendConfigured()||!getAdminSession())return;
+ window.clearTimeout(sharedSyncTimer);
+ const sharedData={...data,followedClubIds:[]};
+ const snapshot=JSON.stringify(sharedData);
+ sharedSyncTimer=window.setTimeout(async()=>{
+  sharedSyncTimer=0;
+  if(sharedSyncActive){scheduleSharedSave();return;}
+  sharedSyncActive=true;
+  try{
+   await supabaseRequest("/rest/v1/app_state?on_conflict=id",{method:"POST",body:{id:1,state:JSON.parse(snapshot)},authenticated:true,prefer:"resolution=merge-duplicates,return=minimal"});
+   const message=document.getElementById("adminMessage");
+   if(message&&!document.getElementById("dashboardPanel").hidden)message.textContent="Changes saved and synced for all users.";
+  }catch(error){
+   console.error("Could not sync M.MissionFootball changes to Supabase.",error);
+   const message=document.getElementById("adminMessage");
+   if(message)message.textContent=`Changes are only saved on this device; shared sync failed: ${error.message}`;
+  }finally{sharedSyncActive=false;}
+ },300);
+}
 function save(){
- try{localStorage.setItem(KEY,JSON.stringify(data));renderAll();return true;}
+ try{localStorage.setItem(KEY,JSON.stringify(data));renderAll();scheduleSharedSave();return true;}
  catch(error){
   console.error("Could not save M.MissionFootball data to this browser.",error);
   data=loadData();
@@ -396,8 +463,34 @@ document.getElementById("assignClubButton").addEventListener("click",()=>{
  if(!save())return;
  document.getElementById("adminMessage").textContent=`${club.name} added to ${league}${previous===league?" (already assigned).":"."}`;
 });
-document.getElementById("loginForm").addEventListener("submit",e=>{e.preventDefault();const u=document.getElementById("adminUsername").value,p=document.getElementById("adminPassword").value;if(u==="admin"&&p==="Mission2026!"){document.getElementById("loginPanel").hidden=true;document.getElementById("dashboardPanel").hidden=false;document.getElementById("loginError").textContent="";renderClubs();resetClubForm();showAdminTab(adminTabAfterLogin);adminTabAfterLogin="clubForm";}else document.getElementById("loginError").textContent="Incorrect demo username or password.";});
-document.getElementById("logoutAdmin").addEventListener("click",()=>{document.getElementById("dashboardPanel").hidden=true;document.getElementById("loginPanel").hidden=false;document.getElementById("adminPassword").value="";});
+document.getElementById("loginForm").addEventListener("submit",async e=>{
+ e.preventDefault();
+ const error=document.getElementById("loginError");
+ if(!backendConfigured()){error.textContent="Admin login is not configured yet. Set up Supabase and add its URL and anon key in public/backend-config.js.";return;}
+ const email=document.getElementById("adminUsername").value.trim(),password=document.getElementById("adminPassword").value;
+ try{
+  const response=await fetch(`${supabaseUrl}/auth/v1/token?grant_type=password`,{method:"POST",headers:{apikey:supabaseAnonKey,"Content-Type":"application/json"},body:JSON.stringify({email,password})});
+  const session=await response.json().catch(()=>null);
+  if(!response.ok)throw new Error(session?.msg||session?.message||"Sign-in failed. Check the email and password.");
+  setAdminSession(session);
+  const admins=await supabaseRequest(`/rest/v1/app_admins?select=user_id&user_id=eq.${encodeURIComponent(session.user.id)}&limit=1`,{authenticated:true});
+  if(!Array.isArray(admins)||!admins.length){clearAdminSession();throw new Error("This account is not approved as an app administrator.");}
+  error.textContent="";
+  document.getElementById("loginPanel").hidden=true;
+  document.getElementById("dashboardPanel").hidden=false;
+  renderClubs();resetClubForm();showAdminTab(adminTabAfterLogin);adminTabAfterLogin="clubForm";
+  if(await loadSharedData()===false)scheduleSharedSave();
+ }catch(loginError){
+  clearAdminSession();
+  error.textContent=loginError.message;
+ }
+});
+document.getElementById("logoutAdmin").addEventListener("click",()=>{
+ const session=getAdminSession();
+ if(session?.access_token&&backendConfigured())fetch(`${supabaseUrl}/auth/v1/logout`,{method:"POST",headers:{apikey:supabaseAnonKey,Authorization:`Bearer ${session.access_token}`}}).catch(error=>console.error("Could not revoke the admin session.",error));
+ clearAdminSession();
+ document.getElementById("dashboardPanel").hidden=true;document.getElementById("loginPanel").hidden=false;document.getElementById("adminPassword").value="";
+});
 document.querySelectorAll(".admin-tab").forEach(b=>b.addEventListener("click",()=>showAdminTab(b.dataset.adminTab)));
 document.getElementById("clubToEdit").addEventListener("change",e=>{selectClubForEdit(e.target.value);document.getElementById("adminMessage").textContent="";});
 document.getElementById("newClubButton").addEventListener("click",()=>{resetClubForm();document.getElementById("adminMessage").textContent="";});
@@ -554,4 +647,7 @@ function doSearch(){const q=document.getElementById("searchInput").value.trim().
 document.getElementById("searchButton").addEventListener("click",doSearch);document.getElementById("searchInput").addEventListener("keydown",e=>{if(e.key==="Enter")doSearch();});
 document.getElementById("year").textContent=new Date().getFullYear();
 renderAll();
+loadSharedData();
+window.setInterval(()=>{if(document.visibilityState==="visible")loadSharedData();},60000);
+window.addEventListener("focus",loadSharedData);
 fetch("/api/health").catch(()=>{});
