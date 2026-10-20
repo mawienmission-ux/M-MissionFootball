@@ -13,6 +13,7 @@ A beginner-friendly, responsive MVP for the South Sudan Premier League and local
 
 ## Included in this starter
 - Responsive public football homepage.
+- Installable progressive web app: on iPhone, open the site in Safari, tap **Share → Add to Home Screen**; on Android, open it in Chrome and choose **Install app** or **Add to Home screen** from the browser menu. This creates a home-screen app shortcut, not an App Store or Google Play listing.
 - Original football and pitch illustration in the homepage hero banner.
 - SSPL 2026–2027 season branding.
 - 14 editable club slots.
