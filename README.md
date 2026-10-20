@@ -20,7 +20,7 @@ A beginner-friendly, responsive MVP for the South Sudan Premier League and local
 - 14 editable club slots.
 - Local associations and Juba divisions.
 - Fixtures, results, league table, player profiles, news, search.
-- Demo administrator panel with forms for clubs, fixtures, scores, players, and news.
+- Administrator dashboard for clubs, leagues, fixtures, scores, players, and news. Admin access uses Supabase Auth; never place passwords or service-role keys in app files.
 - League logo management: upload an image or provide an image URL from the Admin dashboard's **League logo** tab; the logo appears in both homepage league badges.
 - Club management is accessible from **Add / remove clubs** beside the league club list or from Admin. Add a club by leaving the selector on **Add a new club**, entering its details, and saving. Select an existing club to update or remove it; removal also deletes linked matches and players. Club logos can be uploaded (up to 1 MB), entered as a URL, or cleared.
 - League standings display each club's logo beside its name and rank; clubs without a logo show their initials.
@@ -29,38 +29,51 @@ A beginner-friendly, responsive MVP for the South Sudan Premier League and local
 - Update match scores and statuses under Admin → **Fixtures & scores** by selecting an existing match, entering both scores, choosing **Finished**, and saving. League standings automatically recalculate from those results plus the starting totals; select a league above the table to view its clubs and stats. The **Add / update match results** button below the table opens the fixture editor directly.
 - The league manager includes the South Sudan Premier League; Juba Local Football Association (Konyokonyo League) First, Second, and Third Divisions; one state league for each of South Sudan's ten states; and Yei Local Football Association. State league labels include their local center (Juba, Torit, Bor, Rumbek, Aweil, Bentiu, Malakal, Kuajok, Wau, and Yambio). Existing custom leagues are preserved when the catalogue is updated. Clubs can be assigned to a league from the league manager.
 - Add an individual league logo from Admin → Leagues by selecting a league, choosing an image file (up to 1 MB) or entering an image URL, then saving. Logos appear beside league names in the manager and calendar. Removing a league also removes its logo.
-- Browser localStorage persistence for demo data.
+- Supabase-backed shared league data, with a local browser cache for the public app.
 - Express server and health endpoint at `/api/health`.
 
-## Demo administrator access
-Open **Admin** and enter:
-- Username: `admin`
-- Password: `Mission2026!`
+## Set up shared data and administrator access
+The app uses Supabase for public read access, shared league data, and administrator sign-in. Complete these steps before using the admin dashboard:
 
-**Important:** This is a local prototype login, not production security. Do not deploy with demo credentials. Before public launch, implement server-side authentication, hashed passwords, role-based authorization, a real database, backups, secure image uploads, audit logs, and HTTPS.
+1. Create a Supabase project and open its **SQL Editor**.
+2. Run the contents of [`supabase/schema.sql`](supabase/schema.sql) to create the tables and row-level security policies.
+3. In Supabase **Authentication → Users**, create an administrator account with an email and a strong password. Disable public sign-ups in the Auth settings.
+4. In the SQL Editor, approve that account by replacing the email below and running:
+   ```sql
+   insert into public.app_admins (user_id)
+   select id from auth.users where email = 'admin@example.com'
+   on conflict do nothing;
+   ```
+5. In Supabase **Project Settings → API**, copy the project URL and the **anon/public** key. Add them to `public/backend-config.js`:
+   ```js
+   window.MMF_SUPABASE_URL = "https://your-project.supabase.co";
+   window.MMF_SUPABASE_ANON_KEY = "your-anon-public-key";
+   ```
+6. Publish the updated project. Open **Admin Login** and sign in with the approved email and password.
+
+The anon/public key is intended to be visible in a client app; the SQL row-level security policies protect writes. Never put a Supabase service-role key in `public/` or share it. The first approved admin sign-in copies this browser's existing app data to the shared database if no shared copy exists yet. Later admin changes sync to all visitors; open apps refresh shared data about once a minute.
 
 ## Logo assets
 The uploaded poster is included as `public/assets/logos/sspl-clubs-poster.jpg` for visual reference. Individual logos should be supplied as separate authorized image files and mapped to the verified club records. Club names are editable because the poster alone should not be treated as a verified official club register.
 
 ## Add or change the league logo
 1. Start the app and open **Admin Login**.
-2. Sign in with the local demo credentials above, then choose **League logo**.
+2. Sign in with the approved Supabase administrator account, then choose **League logo**.
 3. Choose an image file (up to 1 MB) or enter an image URL, then select **Save league logo**.
 4. Select **Remove league logo** to return to the default SSPL badge.
 
-The logo is stored in this browser's localStorage for the prototype; it is not shared with other visitors.
+League content and logos are stored in the shared Supabase app data. Personal follow preferences remain in this browser.
 
 ## Next production steps
-1. Replace localStorage with PostgreSQL or Firebase.
-2. Add secure authentication and Super Admin / League Admin / Club Admin / Editor / Fan permissions on the backend.
-3. Add verified club data and individual logos.
-4. Add real-time updates and push notifications.
-5. Complete native store builds, signing, store disclosures, testing, and review.
+1. Configure Supabase and test admin access and shared data using the steps above.
+2. Add verified club data and authorized individual logos.
+3. Complete native store builds, signing, store disclosures, testing, and review.
 
 ## App Store and Google Play release
-The Capacitor folders are starter projects, not submitted or store-approved apps. After completing the production steps above:
+The Capacitor folders are starter projects, not submitted or store-approved apps. After configuring Supabase and checking that admin data sync works:
 
-- **Google Play:** Open `android/` in Android Studio, configure the release signing key, build a signed Android App Bundle (`.aab`), then upload it in the Google Play Console and complete the store listing and testing requirements.
-- **Apple App Store:** On a Mac, open `ios/App/App.xcworkspace` in Xcode, select your Apple Developer team, configure signing and the bundle identifier, archive the app, then upload it to App Store Connect and complete TestFlight review and the store listing.
+- The native source is stored in `mobile-projects.zip` in the GitHub repository. Extract it so `android/` and `ios/` sit beside `package.json` before running Capacitor commands.
+- **Google Play:** Build a signed Android App Bundle (`.aab`) using Android Studio or a cloud build service, then upload it in the Google Play Console and complete the store listing and testing requirements.
+- **Apple App Store:** Build and sign the iOS app on macOS using Xcode or a macOS cloud build service, then upload it to App Store Connect and complete TestFlight review and the store listing.
 
-Both stores require app privacy disclosures, a support contact, screenshots, and store review. The current demo login is hard-coded and app data is saved only in each device's browser storage; replace these with secure server-side authentication and shared backend storage before a public release. Never publish the demo password shown above.
+Both stores require app privacy disclosures, a support contact, screenshots, signing credentials, and store review. Do not publish signing credentials or Supabase service-role keys in GitHub.
