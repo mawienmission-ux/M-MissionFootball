@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="112" fill="#087f4b"/>
+  <path d="M0 344c92-51 180-65 270-39 94 28 167 23 242-21v228H0Z" fill="#06613d"/>
+  <circle cx="256" cy="246" r="130" fill="#fff" stroke="#ffd22f" stroke-width="14"/>
+  <path d="m256 173 47 34-18 55h-58l-18-55Zm-82 74 44 15 14 57-46 34-48-31 4-56Zm164 0-44 15-14 57 46 34 48-31-4-56Zm-82 70 50-36 48 34-18 56h-60Zm-82 0 48-34 50 36-20 54h-60Z" fill="#13251b" stroke="#13251b" stroke-linejoin="round" stroke-width="7"/>
+  <path d="M111 417h290" stroke="#fff" stroke-linecap="round" stroke-width="14" opacity=".9"/>
+  <text x="256" y="468" fill="#fff" font-family="Arial,sans-serif" font-size="34" font-weight="700" text-anchor="middle">SOUTH SUDAN</text>
+</svg>
