@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 560" fill="none">
+  <defs>
+    <linearGradient id="pitch" x1="80" y1="60" x2="680" y2="520" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#21B875"/>
+      <stop offset="1" stop-color="#063B2A"/>
+    </linearGradient>
+    <radialGradient id="ball" cx="0" cy="0" r="1" gradientTransform="matrix(70 100 -100 70 522 340)" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#fff"/>
+      <stop offset="1" stop-color="#D8E7DE"/>
+    </radialGradient>
+  </defs>
+  <path d="M132 65h574a24 24 0 0 1 24 24v382a24 24 0 0 1-24 24H54c88-91 121-239 78-430Z" fill="url(#pitch)" opacity=".92"/>
+  <path d="M176 94h506v360H106m70-360v360m506-360L106 454m576-360L176 454" stroke="#D7F2E3" stroke-opacity=".28" stroke-width="3"/>
+  <path d="M484 274h146v113H484m0-75h64v38h-64m146-38h-42v38h42" stroke="#E5F6EB" stroke-opacity=".78" stroke-width="5"/>
+  <circle cx="397" cy="331" r="74" stroke="#E5F6EB" stroke-opacity=".65" stroke-width="5"/>
+  <path d="m322 332-31 2m181-5 31-2" stroke="#E5F6EB" stroke-opacity=".65" stroke-width="5"/>
+  <path d="m337 275 69-40 65 44-17 79-73 27-59-47 15-63Z" fill="#06271E" stroke="#FFD22F" stroke-width="7" stroke-linejoin="round"/>
+  <path d="m239 163 36 28-14 37-42 2-18-34 38-33Zm-66 118 34-26 37 18 3 42-35 21-37-24-2-31Zm7 96 39-13 28 28-12 41-42 9-24-33 11-32Zm99 46 14-40 41-9 27 30-14 40-42 8-26-29Zm-31-196 31-7 21 24-13 30-33 1-17-25 11-23Z" fill="#063425" stroke="#FFD22F" stroke-width="5" stroke-linejoin="round"/>
+  <path d="m467 170 27-17 33 9 13 31-20 27-34-4-18-24-1-22Z" fill="#0B3F2E" stroke="#fff" stroke-opacity=".8" stroke-width="4"/>
+  <path d="m475 220 17 34m-34 132 14 30m-45-255 20 31" stroke="#fff" stroke-opacity=".75" stroke-width="7" stroke-linecap="round"/>
+  <circle cx="546" cy="348" r="67" fill="#073A2A" opacity=".42"/>
+  <circle cx="533" cy="329" r="65" fill="url(#ball)" stroke="#fff" stroke-width="7"/>
+  <path d="m527 290 23 15-8 27h-27l-9-25 21-17Zm-39 38 20 4 7 25-20 15-23-14 2-24 14-6Zm67 8 20-4 17 21-10 24-27 1-13-22 13-20Zm-35 47 20-13 24 12 2 27-24 13-22-16v-23Zm43-76-7 17m-89 28 22-2m92 24-19-6" fill="#152A21" stroke="#152A21" stroke-width="5" stroke-linejoin="round"/>
+</svg>
