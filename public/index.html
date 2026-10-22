@@ -57,6 +57,7 @@
     .follow-club[aria-pressed="true"]{background:var(--gold);border-color:var(--gold);color:var(--deep)}
     @media(max-width:640px){.fixture-week{grid-template-columns:repeat(7,minmax(40px,1fr))}.fixture-week .week-nav{grid-column:span 3}.fixture-filter-row{align-items:stretch;flex-direction:column}.fixture-filter-row label{justify-content:space-between}.fixture-filter-row select{flex:1}}
   </style>
+  <link rel="stylesheet" href="/responsive.css">
 </head>
 <body>
   <div class="topline">THE HOME OF SOUTH SUDAN FOOTBALL <span>SSPL • 2026–2027</span></div>
@@ -69,6 +70,7 @@
     <nav id="mainNav">
       <a href="#home">Home</a><a href="#league">Premier League</a><a href="#associations">Associations</a>
       <a href="#fixtures">Fixtures</a><a href="#results">Results</a><a href="#news">News</a>
+      <button class="install-app" id="installApp" type="button" hidden>Install app</button>
       <button class="nav-admin" id="openAdmin">Admin Login</button>
     </nav>
   </header>
@@ -177,6 +179,41 @@
   <script src="/backend-config.js"></script>
   <script src="/app.js"></script>
   <script>
+    let installPrompt = null;
+    const installButton = document.getElementById("installApp");
+    const isIos = /iphone|ipad|ipod/i.test(navigator.userAgent) ||
+      (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+    const isStandalone = window.matchMedia("(display-mode: standalone)").matches ||
+      window.navigator.standalone === true;
+
+    if (isIos && !isStandalone) {
+      installButton.hidden = false;
+      installButton.textContent = "Add to Home Screen";
+    }
+
+    window.addEventListener("beforeinstallprompt", event => {
+      event.preventDefault();
+      installPrompt = event;
+      installButton.hidden = false;
+      installButton.textContent = "Install app";
+    });
+
+    installButton.addEventListener("click", async () => {
+      if (installPrompt) {
+        installPrompt.prompt();
+        await installPrompt.userChoice;
+        installPrompt = null;
+        installButton.hidden = true;
+      } else if (isIos) {
+        window.alert("To install M.MissionFootball, tap Share in your browser, then choose Add to Home Screen.");
+      }
+    });
+
+    window.addEventListener("appinstalled", () => {
+      installButton.hidden = true;
+      installPrompt = null;
+    });
+
     if ("serviceWorker" in navigator) {
       window.addEventListener("load", () => {
         navigator.serviceWorker.register("/service-worker.js").catch(error => {

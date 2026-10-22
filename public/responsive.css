@@ -1,0 +1,290 @@
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-padding-top: 88px;
+}
+
+body {
+  min-width: 320px;
+  overflow-x: hidden;
+}
+
+img,
+svg,
+video {
+  max-width: 100%;
+}
+
+button,
+input,
+select,
+textarea {
+  max-width: 100%;
+  touch-action: manipulation;
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 3px solid var(--gold);
+  outline-offset: 3px;
+}
+
+.install-app {
+  border: 1px solid var(--green);
+  border-radius: 4px;
+  padding: 10px 13px;
+  background: #e8f7ee;
+  color: var(--green);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.install-app[hidden] {
+  display: none;
+}
+
+.table-wrap {
+  max-width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.fixture-week,
+.fixture-quick-filters,
+.admin-tabs {
+  max-width: 100%;
+}
+
+.fixture-quick-filters {
+  overflow-x: auto;
+  flex-wrap: nowrap;
+  padding: 2px 2px 8px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.fixture-quick-filters button {
+  flex: 0 0 auto;
+  min-height: 42px;
+}
+
+.admin-tabs {
+  overflow-x: auto;
+  flex-wrap: nowrap;
+  padding: 3px 2px 8px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.admin-tab {
+  flex: 0 0 auto;
+  min-height: 40px;
+}
+
+.modal {
+  width: min(620px, 100%);
+  max-height: min(90vh, 900px);
+  max-height: min(90dvh, 900px);
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.modal input,
+.modal select,
+.modal textarea,
+.search-box input {
+  min-height: 44px;
+}
+
+@media (max-width: 900px) {
+  .site-header {
+    padding-inline: 4%;
+  }
+
+  .site-header nav {
+    gap: clamp(8px, 1.4vw, 14px);
+  }
+
+  .site-header nav a,
+  .site-header .nav-admin,
+  .site-header .install-app {
+    font-size: 11px;
+  }
+
+  .match-grid,
+  .news-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .fixture-week {
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 680px) {
+  html {
+    scroll-padding-top: 76px;
+  }
+
+  .topline {
+    gap: 8px;
+    letter-spacing: 0.8px;
+  }
+
+  .topline span {
+    text-align: right;
+    white-space: nowrap;
+  }
+
+  .site-header {
+    height: 70px;
+  }
+
+  .site-header nav {
+    top: 70px;
+    max-height: calc(100vh - 70px);
+    max-height: calc(100dvh - 70px);
+    overflow-y: auto;
+    padding-bottom: max(18px, env(safe-area-inset-bottom));
+  }
+
+  .site-header nav a,
+  .site-header .nav-admin,
+  .site-header .install-app {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    width: 100%;
+    padding: 11px 12px;
+    text-align: left;
+  }
+
+  .hero {
+    min-height: auto;
+  }
+
+  .hero h1 {
+    font-size: clamp(48px, 13vw, 62px);
+  }
+
+  .section-heading .muted,
+  .section-heading > .season-pill {
+    align-self: flex-start;
+  }
+
+  .match-grid,
+  .association-grid,
+  .news-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .fixture-week {
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 4px;
+  }
+
+  .fixture-week button {
+    min-width: 0;
+    padding: 7px 2px;
+  }
+
+  .fixture-week button small {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .fixture-row {
+    grid-template-columns: minmax(62px, 0.75fr) minmax(0, 2fr) minmax(42px, 0.6fr);
+  }
+
+  .form-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .starting-stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .club-actions,
+  .league-management-actions {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .club-actions .btn,
+  .league-management-actions button {
+    width: 100%;
+    min-height: 44px;
+  }
+
+  .modal-backdrop {
+    place-items: end center;
+    padding: 0;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .modal {
+    width: 100%;
+    max-height: 94vh;
+    max-height: 94dvh;
+    padding: 28px 20px max(24px, env(safe-area-inset-bottom));
+    border-radius: 12px 12px 0 0;
+  }
+
+  .search-box {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .search-box button {
+    min-height: 44px;
+    padding-inline: 15px;
+  }
+
+  footer {
+    padding-bottom: max(20px, env(safe-area-inset-bottom));
+  }
+}
+
+@media (max-width: 360px) {
+  .brand,
+  .footer-brand {
+    gap: 8px;
+  }
+
+  .brand-mark {
+    padding: 6px 8px;
+    font-size: 22px;
+  }
+
+  .brand strong {
+    font-size: 12px;
+  }
+
+  .brand small {
+    font-size: 8px;
+  }
+
+  .section {
+    padding-inline: 5%;
+  }
+
+  .hero {
+    padding-inline: 5%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

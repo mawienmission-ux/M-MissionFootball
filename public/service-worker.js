@@ -1,8 +1,9 @@
-const CACHE_NAME = "mmf-shell-v2";
+const CACHE_NAME = "mmf-shell-v3";
 const SHELL_FILES = [
   "/",
   "/index.html",
   "/styles.css",
+  "/responsive.css",
   "/app.js",
   "/backend-config.js",
   "/manifest.webmanifest",
